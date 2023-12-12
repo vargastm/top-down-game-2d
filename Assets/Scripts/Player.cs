@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
-  public float speed;
-
+  [SerializeField] private float speed;
+  [SerializeField] private  float runSpeed;
+  
   private Rigidbody2D rigid2d;
+
+  private bool _isRunning;
+  private float initialSpeed;
   private Vector2 _direction;
 
   public Vector2 direction {
@@ -13,15 +17,44 @@ public class Player : MonoBehaviour {
     set { _direction = value;}
   }
 
+  public bool isRunning {
+    get { return _isRunning;}
+    set { _isRunning = value;}
+  }
+
   private void Start() {
     rigid2d = GetComponent<Rigidbody2D>();
+    initialSpeed = speed;
   }
 
   private void Update() {
-    _direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+    OnInput();
+    OnRun();
   }
 
   private void FixedUpdate() {
+    OnMove();
+  }
+
+  #region Movement
+  void OnInput() {
+    _direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+  }
+  
+  void OnMove() {
     rigid2d.MovePosition(rigid2d.position + _direction * speed * Time.fixedDeltaTime);
   }
+
+  void OnRun() {
+    if(Input.GetKeyDown(KeyCode.LeftShift)) {
+      speed = runSpeed;
+      _isRunning = true;
+    }
+
+    if(Input.GetKeyUp(KeyCode.LeftShift)) {
+      speed = initialSpeed;
+      _isRunning = false;
+    }
+  }
+  #endregion
 }
